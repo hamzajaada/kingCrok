@@ -1,6 +1,6 @@
 import React from "react";
 
-import logo from "../../asset/images/logo.png"
+import logo from "../../asset/images/logofooter.png"
 export default function Footer() {
   return (
     <div className="w-full h-80  bg-backgroundgray ">
