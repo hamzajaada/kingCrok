@@ -6,7 +6,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Link } from "react-router-dom";
 import axios from "axios";
-
+import api from "../../Api/api";
 import product1 from "../../asset/images/product1.webp";
 import product2 from "../../asset/images/product2.webp";
 import product3 from "../../asset/images/product3.webp";
@@ -82,7 +82,7 @@ const MultiProductSlider = () => {
             <div className="h-full flex flex-col">
               <div className="relative mb-4 aspect-square">
                 <img 
-                  src={`https://croquette.sa-pub.com/storage/${product.image_url}`} 
+                  src={`${api.imageUrl}${product.image_url}`} 
                   className="w-full h-full object-cover rounded-xl shadow-md" 
                   alt={product.name} 
                 />

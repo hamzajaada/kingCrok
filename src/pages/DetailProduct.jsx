@@ -193,7 +193,7 @@ export default function DetailProduct() {
           <div className="lg:w-1/2">
             <div className="bg-white rounded-lg shadow-md overflow-hidden mb-4">
               <img 
-                src={`https://croquette.sa-pub.com/storage/${productData.image_url}`} 
+                src={`${api.imageUrl}${productData.image_url}`} 
                 className="w-full h-auto object-contain" 
                 alt={productData.name} 
               />

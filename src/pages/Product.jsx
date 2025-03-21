@@ -126,8 +126,7 @@ export default function Product() {
           {filteredProducts.map((product) => (
             <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
               <div className="relative aspect-square overflow-hidden">
-                <img src={`https://croquette.sa-pub.com/storage/${product.image_url}`} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
-                <div className="absolute top-2 right-2 bg-custcolor text-white text-xs px-2 py-1 rounded-full">
+              <img src={`${api.imageUrl}${product.image_url}`} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />                <div className="absolute top-2 right-2 bg-custcolor text-white text-xs px-2 py-1 rounded-full">
                   {product.brand?.name || "Standard"}
                 </div>
               </div>
