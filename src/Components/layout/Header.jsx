@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import logo from "../../asset/images/logo.png";
 import phone from "../../asset/images/phone.png";
 
-const ResponsiveHeader = () => {
+const ResponsiveHeader = ({ scrollToSection, Contact, Apropos }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [brands, setBrands] = useState([]);
@@ -19,7 +19,7 @@ const ResponsiveHeader = () => {
 
   const toggleProductsMenu = () => {
     setIsProductsOpen(!isProductsOpen);
-    
+
     // Fetch brands when opening the menu if we don't have them yet
     if (!isProductsOpen && brands.length === 0 && !isLoading) {
       fetchBrands();
@@ -29,13 +29,13 @@ const ResponsiveHeader = () => {
   const fetchBrands = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response = await fetch("https://croquette.sa-pub.com/api/brands");
       if (!response.ok) {
         throw new Error(`Erreur HTTP: ${response.status}`);
       }
-      
+
       const data = await response.json();
       setBrands(data);
     } catch (err) {
@@ -84,17 +84,17 @@ const ResponsiveHeader = () => {
             <Link to="/" className="text-custcolor font-bold text-lg hover:text-gray-600">
               Accueil
             </Link>
-            
+
             {/* Menu déroulant pour les marques */}
             <div className="relative" ref={productMenuRef}>
-              <button 
+              <button
                 onClick={toggleProductsMenu}
                 className="text-custcolor font-bold text-lg hover:text-gray-600 flex items-center"
               >
                 Marques
                 <ChevronDown className={`ml-1 w-4 h-4 transition-transform ${isProductsOpen ? 'rotate-180' : ''}`} />
               </button>
-              
+
               {isProductsOpen && (
                 <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
                   {isLoading ? (
@@ -105,8 +105,8 @@ const ResponsiveHeader = () => {
                     <>
                       {brands.length > 0 ? (
                         brands.map((brand) => (
-                          <button 
-                            key={brand.id || brand.name} 
+                          <button
+                            key={brand.id || brand.name}
                             onClick={() => handleBrandClick(brand.name)}
                             className="block w-full text-left px-4 py-2 text-custcolor hover:bg-gray-100"
                           >
@@ -124,13 +124,19 @@ const ResponsiveHeader = () => {
                 </div>
               )}
             </div>
-            
-            <Link to="/about" className="text-custcolor font-bold text-lg hover:text-gray-600">
+
+            {/* <a
+              className="text-custcolor cursor-pointer font-bold text-lg hover:text-gray-600"
+              onClick={() => scrollToSection(Apropos)}
+            >
               À Propos
-            </Link>
-            <Link to="/contact" className="text-custcolor font-bold text-lg hover:text-gray-600">
+            </a> */}
+            <a
+              className="text-custcolor cursor-pointer font-bold text-lg hover:text-gray-600"
+              onClick={() => scrollToSection(Contact)}
+            >
               Contact
-            </Link>
+            </a>
             <a href="tel:0617352356" className="text-custcolor font-bold text-lg flex items-center hover:text-gray-600">
               <img src={phone} className="mr-2" alt="" srcSet="" />
               06 17 35 23 56
@@ -138,7 +144,7 @@ const ResponsiveHeader = () => {
           </nav>
 
           {/* Mobile Menu Button */}
-          <button 
+          <button
             onClick={toggleMenu}
             className="lg:hidden p-2 hover:bg-gray-100 rounded-lg"
           >
@@ -150,24 +156,24 @@ const ResponsiveHeader = () => {
         {isMenuOpen && (
           <div className="lg:hidden fixed inset-0 top-20 bg-white z-50">
             <nav className="flex flex-col p-4 space-y-4">
-              <Link 
-                to="/" 
+              <Link
+                to="/"
                 className="text-custcolor font-bold text-lg p-2 hover:bg-gray-100 rounded"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Accueil
               </Link>
-              
+
               {/* Menu déroulant pour les marques en mobile */}
               <div>
-                <button 
+                <button
                   onClick={toggleProductsMenu}
                   className="text-custcolor font-bold text-lg p-2 hover:bg-gray-100 rounded w-full text-left flex items-center justify-between"
                 >
                   Marques
                   <ChevronDown className={`w-5 h-5 transition-transform ${isProductsOpen ? 'rotate-180' : ''}`} />
                 </button>
-                
+
                 {isProductsOpen && (
                   <div className="pl-4 mt-2 space-y-2">
                     {isLoading ? (
@@ -178,8 +184,8 @@ const ResponsiveHeader = () => {
                       <>
                         {brands.length > 0 ? (
                           brands.map((brand) => (
-                            <button 
-                              key={brand.id || brand.name} 
+                            <button
+                              key={brand.id || brand.name}
                               onClick={() => handleBrandClick(brand.name)}
                               className="block w-full text-left p-2 text-custcolor hover:bg-gray-100 rounded"
                             >
@@ -189,8 +195,8 @@ const ResponsiveHeader = () => {
                         ) : (
                           <div className="p-2 text-gray-500">Aucune marque disponible</div>
                         )}
-                        <Link 
-                          to="/product" 
+                        <Link
+                          to="/product"
                           className="block p-2 text-custcolor hover:bg-gray-100 rounded font-semibold"
                           onClick={() => setIsMenuOpen(false)}
                         >
@@ -201,23 +207,27 @@ const ResponsiveHeader = () => {
                   </div>
                 )}
               </div>
-              
-              <Link 
-                to="/about" 
+
+              {/* <a
                 className="text-custcolor font-bold text-lg p-2 hover:bg-gray-100 rounded"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  scrollToSection(Apropos);
+                  setIsMenuOpen(false);
+                }}
               >
                 À Propos
-              </Link>
-              <Link 
-                to="/contact" 
+              </a> */}
+              <a
                 className="text-custcolor font-bold text-lg p-2 hover:bg-gray-100 rounded"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => {
+                  scrollToSection(Contact);
+                  setIsMenuOpen(false);
+                }}
               >
                 Contact
-              </Link>
-              <a 
-                href="tel:0617352356" 
+              </a>
+              <a
+                href="tel:0617352356"
                 className="text-custcolor font-bold text-lg p-2 hover:bg-gray-100 rounded flex items-center"
               >
                 <Phone className="w-5 h-5 mr-2" />

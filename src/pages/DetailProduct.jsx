@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import Header from "../Components/layout/Header";
 import Product from "../asset/images/product1.webp";
-import Footer from "../Components/Section/Footer";
+import Footer from "../Components/layout/Footer";
 import { X, ChevronRight, Plus, Minus } from "lucide-react";
 import api from "../Api/api";
 
