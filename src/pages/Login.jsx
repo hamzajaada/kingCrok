@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import api from '../Api/api';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -12,9 +13,6 @@ const LoginPage = () => {
   // Vider le localStorage à chaque fois que la page de login est montée
   useEffect(() => {
     localStorage.clear(); // Vide tout le localStorage
-    // Ou si vous préférez vider uniquement les éléments d'authentification:
-    // localStorage.removeItem('auth_token');
-    // localStorage.removeItem('user');
   }, []);
 
   const handleSubmit = async (e) => {
@@ -23,7 +21,7 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('https://croquette.sa-pub.com/api/login', 
+      const response = await api.post('login', 
         { email, password },
         { headers: { 'Content-Type': 'application/json' } }
       );
@@ -39,7 +37,13 @@ const LoginPage = () => {
       navigate('/dashboard');
     } catch (err) {
       setLoading(false);
-      setError(err.response?.data?.message || 'Une erreur est survenue lors de la connexion');
+      
+      // Extraire le message d'erreur de la réponse de l'API
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error); // Afficher l'erreur renvoyée par le serveur
+      } else {
+        setError('Une erreur est survenue lors de la connexion'); // Message d'erreur par défaut
+      }
     }
   };
 
@@ -48,6 +52,7 @@ const LoginPage = () => {
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h1 className="text-2xl font-bold text-center mb-6 text-customGreen">Connexion</h1>
         
+        {/* Afficher l'erreur si elle existe */}
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {error}
@@ -93,8 +98,6 @@ const LoginPage = () => {
             {loading ? 'Connexion en cours...' : 'Se connecter'}
           </button>
         </form>
-        
-        
       </div>
     </div>
   );
