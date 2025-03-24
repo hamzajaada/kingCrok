@@ -80,7 +80,7 @@ const MultiProductSlider = () => {
         {products.map((product) => (
           <SwiperSlide key={product.id}>
             <div className="h-full flex flex-col">
-              <div className="relative mb-4 aspect-square">
+              <div className="relative h-[40vh] object-cover mb-4 aspect-square">
                 <img 
                   src={`${api.imageUrl}${product.image}`} 
                   className="w-full h-full object-cover rounded-xl shadow-md" 
