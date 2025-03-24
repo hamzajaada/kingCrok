@@ -7,26 +7,16 @@ import {
   ChartPieIcon,
   HomeIcon,
   UsersIcon,
-  DocumentCurrencyEuroIcon,
-  QueueListIcon,
-  BuildingStorefrontIcon,
 } from "@heroicons/react/24/outline";
 import logo from "../asset/images/logo.png";
 import clsx from "clsx";
+import LogoutButton from "../Components/LogoutButton";
 
 const navigation = [
-  { name: "Tableau de bord", href: "/dashboard", icon: HomeIcon },
-  { name: "Marques", href: "/dashboard/brands", icon: QueueListIcon },
-  {
-    name: "Commandes",
-    href: "/dashboard/orders",
-    icon: DocumentCurrencyEuroIcon,
-  },
-  {
-    name: "Produits",
-    href: "/dashboard/products",
-    icon: BuildingStorefrontIcon,
-  },
+  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
+  { name: "Brands", href: "/dashboard/brands", icon: ChartPieIcon },
+  { name: "Orders", href: "/dashboard/orders", icon: UsersIcon },
+  { name: "Products", href: "/dashboard/products", icon: UsersIcon },
 ];
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
@@ -110,7 +100,9 @@ const ProfileSection = () => (
   <div className="hidden lg:fixed lg:inset-y-0 lg:flex lg:w-72 lg:flex-col bg-gray-900 px-6">
     <LogoSection />
     <NavItems location={useLocation()} />
-    <div className="-mx-6 mt-auto"></div>
+    <div className="flex justify-center items-center mb-6 mt-auto">
+      <LogoutButton />
+    </div>
   </div>
 );
 
@@ -131,6 +123,7 @@ export default function AdminLayout() {
         <div className="flex-1 text-sm font-semibold text-white ml-6">
           Dashboard
         </div>
+        <LogoutButton />
       </div>
       <main className="py-10 lg:pl-72">
         <div className="px-4 sm:px-6 lg:px-8">
