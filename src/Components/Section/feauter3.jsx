@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import axios from 'axios';
+import api from '../../Api/api';
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     nom: '',
@@ -10,6 +11,11 @@ const ContactForm = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [submitStatus, setSubmitStatus] = useState({
+    loading: false,
+    success: false,
+    error: null
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,20 +61,54 @@ const ContactForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validateForm()) {
-      // Handle form submission here
-      console.log('Form submitted:', formData);
-      // Reset form after submission
-      setFormData({
-        nom: '',
-        email: '',
-        telephone: '',
-        sujet: '',
-        message: ''
-      });
+      setSubmitStatus({ loading: true, success: false, error: null });
+      
+      try {
+        // Map form fields to API expected format
+        const apiData = {
+          name: formData.nom,
+          email: formData.email,
+          tel: formData.telephone,
+          subject: formData.sujet,
+          contact: formData.message
+        };
+        
+        const response = await api.post('contact', apiData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log('Form submitted successfully:', response.data);
+        
+        // Reset form after successful submission
+        setFormData({
+          nom: '',
+          email: '',
+          telephone: '',
+          sujet: '',
+          message: ''
+        });
+        
+        setSubmitStatus({ loading: false, success: true, error: null });
+        
+        // Reset success message after 5 seconds
+        setTimeout(() => {
+          setSubmitStatus(prev => ({ ...prev, success: false }));
+        }, 5000);
+        
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        const errorMessage = error.response ? 
+          `Erreur ${error.response.status}: ${error.response.data.message || 'Une erreur est survenue'}` : 
+          'Erreur de connexion au serveur';
+        
+        setSubmitStatus({ loading: false, success: false, error: errorMessage });
+      }
     }
   };
 
@@ -82,6 +122,18 @@ const ContactForm = () => {
           N'hésitez pas à nous envoyer un message via le formulaire ci-dessous !
         </p>
       </div>
+
+      {submitStatus.success && (
+        <div className="mb-6 p-4 bg-green-100 text-green-700 rounded-md">
+          Votre message a été envoyé avec succès. Nous vous contacterons bientôt.
+        </div>
+      )}
+
+      {submitStatus.error && (
+        <div className="mb-6 p-4 bg-red-100 text-red-700 rounded-md">
+          {submitStatus.error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -146,9 +198,10 @@ const ContactForm = () => {
 
         <button
           type="submit"
-          className="w-full bg-[#767264] text-white py-3 px-6 rounded-md hover:bg-[#5d5a50] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#767264]"
+          className={`w-full bg-[#767264] text-white py-3 px-6 rounded-md hover:bg-[#5d5a50] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#767264] ${submitStatus.loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+          disabled={submitStatus.loading}
         >
-          ENVOYER
+          {submitStatus.loading ? 'ENVOI EN COURS...' : 'ENVOYER'}
         </button>
       </form>
     </div>

@@ -82,7 +82,7 @@ const MultiProductSlider = () => {
             <div className="h-full flex flex-col">
               <div className="relative mb-4 aspect-square">
                 <img 
-                  src={`https://croquette.sa-pub.com/storage/${product.image}`} 
+                  src={`${api.imageUrl}${product.image}`} 
                   className="w-full h-full object-cover rounded-xl shadow-md" 
                   alt={product.name} 
                 />
