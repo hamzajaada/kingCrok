@@ -7,15 +7,26 @@ import {
   ChartPieIcon,
   HomeIcon,
   UsersIcon,
+  DocumentCurrencyEuroIcon,
+  QueueListIcon,
+  BuildingStorefrontIcon,
 } from "@heroicons/react/24/outline";
 import logo from "../asset/images/logo.png";
 import clsx from "clsx";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
-  { name: "Brands", href: "/dashboard/brands", icon: ChartPieIcon },
-  { name: "Orders", href: "/dashboard/orders", icon: UsersIcon },
-  { name: "Products", href: "/dashboard/products", icon: UsersIcon },
+  { name: "Tableau de bord", href: "/dashboard", icon: HomeIcon },
+  { name: "Marques", href: "/dashboard/brands", icon: QueueListIcon },
+  {
+    name: "Commandes",
+    href: "/dashboard/orders",
+    icon: DocumentCurrencyEuroIcon,
+  },
+  {
+    name: "Produits",
+    href: "/dashboard/products",
+    icon: BuildingStorefrontIcon,
+  },
 ];
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {

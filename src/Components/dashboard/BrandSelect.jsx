@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const URL_API = "https://croquette.sa-pub.com/api/brands";
+import api from "../../Api/api";
 
 export default function BrandSelect({ value, onChange }) {
   const [brands, setBrands] = useState([]);
@@ -13,14 +11,14 @@ export default function BrandSelect({ value, onChange }) {
 
     const fetchBrands = async () => {
       try {
-        const { data } = await axios.get(URL_API, {
+        const { data } = await api.get("brands", {
           signal: controller.signal,
         });
 
         setBrands(data);
         setError(null);
       } catch (err) {
-        if (!axios.isCancel(err)) {
+        if (!api.isCancel(err)) {
           setError("Erreur lors du chargement des marques");
           console.error("Brands fetch error:", err);
         }

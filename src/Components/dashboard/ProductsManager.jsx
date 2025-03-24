@@ -1,11 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { Dialog } from "@headlessui/react";
 import { PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/outline";
-import ProductForm from "./ProductForm";
-
-// API URL
-const API_URL = "https://croquette.sa-pub.com/api/products";
+import UpdateProduct from "./UpdateProduct";
+import api from "../../Api/api";
+import AddProduct from "./AddProduct";
 
 export default function ProductsManager() {
   const [products, setProducts] = useState([]);
@@ -14,29 +12,21 @@ export default function ProductsManager() {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  console.log(products);
-
   // Fetch brand options
   const [brands, setBrands] = useState([]);
+
   const fetchBrands = async () => {
     try {
-      const response = await axios.get(
-        "https://croquette.sa-pub.com/api/brands"
-      );
+      const response = await api.get("brands");
       setBrands(response.data);
     } catch (error) {
       console.error("Error fetching brands:", error);
     }
   };
 
-  // Fetch brands on component mount
+  // Fetch brands && products on component mount
   useEffect(() => {
     fetchBrands();
-  }, []);
-
-  // Fetch products on component mount
-  useEffect(() => {
     fetchProducts();
     // Cleanup function to reset state
     return () => {
@@ -50,7 +40,7 @@ export default function ProductsManager() {
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(API_URL);
+      const response = await api.get("products");
       setProducts(response.data);
       setError(null);
     } catch (err) {
@@ -63,7 +53,11 @@ export default function ProductsManager() {
 
   const deleteProduct = async (id) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await api.delete(`products/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        },
+      });
       setProducts(products.filter((product) => product.id !== id));
       setIsDeleteModalOpen(false);
       setSelectedProduct(null);
@@ -108,8 +102,8 @@ export default function ProductsManager() {
 
       {/* Loading state */}
       {isLoading ? (
-        <div className="flex justify-center py-6">
-          <p className="text-gray-500">Chargement des produits...</p>
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow overflow-hidden">
@@ -153,7 +147,7 @@ export default function ProductsManager() {
                         ? product.composition.substring(0, 30) + "..."
                         : product.composition}
                     </td>
-                    <td className="px-4 py-4 text-sm flex gap-2">
+                    <td className="px-4 py-4 text-sm flex gap-6">
                       <button
                         onClick={() => {
                           setSelectedProduct(product);
@@ -190,10 +184,17 @@ export default function ProductsManager() {
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-2xl bg-white rounded-lg p-6 max-h-[90vh] overflow-y-auto">
-            <Dialog.Title className="text-lg font-semibold mb-4">
-              {selectedProduct ? "Modifier le produit" : "Créer un produit"}
-            </Dialog.Title>
-            <ProductForm product={selectedProduct} />
+            <Dialog.Title className="text-lg font-semibold mb-4"></Dialog.Title>
+            {selectedProduct && (
+              <>
+                {selectedProduct.id ? (
+                  <UpdateProduct product={selectedProduct} />
+                ) : (
+                  <AddProduct product={selectedProduct} />
+                )}
+              </>
+            )}
+            {/* <UpdateProduct product={selectedProduct} /> */}
           </Dialog.Panel>
         </div>
       </Dialog>

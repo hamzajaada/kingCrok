@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PhotoIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-const ImageUpload = ({ onUpload, previewUrl }) => {
+const ImageUpload = ({ onUpload, previewUrl, imageFile }) => {
   const [preview, setPreview] = useState(previewUrl || null);
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
@@ -9,16 +9,35 @@ const ImageUpload = ({ onUpload, previewUrl }) => {
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
   const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
+  // Only update when props change
   useEffect(() => {
-    // Sets the initial preview from the provided previewUrl prop
-    setPreview(previewUrl);
+    if (previewUrl !== undefined) {
+      setPreview(previewUrl);
+    }
   }, [previewUrl]);
+
+  useEffect(() => {
+    setFile(imageFile);
+  }, [imageFile]);
 
   const handleFileChange = (e) => {
     setError("");
     const selectedFile = e.target.files[0];
 
-    if (!selectedFile) return;
+    if (!selectedFile) {
+      setError("No file selected.");
+      return;
+    }
+
+    if (selectedFile) {
+      setFile(selectedFile);
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPreview(event.target.result);
+      };
+      reader.readAsDataURL(selectedFile);
+      onUpload(selectedFile);
+    }
 
     if (!ALLOWED_TYPES.includes(selectedFile.type)) {
       setError("Only JPG, PNG, and WEBP images are allowed.");
@@ -46,20 +65,27 @@ const ImageUpload = ({ onUpload, previewUrl }) => {
     onUpload(null);
   };
 
+  // Add this effect to ensure the parent component always has the current file
+  useEffect(() => {
+    if (file || imageFile) {
+      onUpload(file || imageFile);
+    }
+  }, [file, imageFile, onUpload]);
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 my-4">
       {/* File Input */}
       {!preview && (
-        <label className="block border-2 border-dashed rounded-lg p-8 text-center cursor-pointer">
+        <label className="block border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition duration-200">
           <input
             type="file"
             accept="image/*"
             className="hidden"
             onChange={handleFileChange}
           />
-          <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <p className="text-sm text-gray-600">
-            Click to upload or drag and drop
+          <PhotoIcon className="mx-auto h-16 w-16 text-gray-400 mb-4" />
+          <p className="text-sm text-gray-600 ">
+            Cliquez pour télécharger une image
           </p>
           <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 5MB</p>
         </label>
@@ -67,11 +93,11 @@ const ImageUpload = ({ onUpload, previewUrl }) => {
 
       {/* Image Preview */}
       {preview && (
-        <div className="relative w-32 h-32">
+        <div className="relative w-full h-80">
           <img
             src={preview}
             alt="Preview"
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full object-contain rounded-lg"
           />
           <button
             type="button"

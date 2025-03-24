@@ -1,9 +1,7 @@
 import { Dialog } from "@headlessui/react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useState, useEffect } from "react";
-import axios from "axios";
-
-const API_URL = "https://croquette.sa-pub.com/api/brands";
+import api from "../../Api/api";
 
 export default function BrandsManager() {
   const [brands, setBrands] = useState([]);
@@ -26,12 +24,12 @@ export default function BrandsManager() {
   const fetchBrands = async () => {
     setIsLoading(true);
     try {
-      const response = await axios.get(API_URL);
+      const response = await api.get("brands");
       setBrands(response.data);
       setError(null);
     } catch (err) {
-      setError("Failed to fetch brands. Please try again.");
-      console.error("Error fetching brands:", err);
+      setError("Échec de la récupération des marques. Veuillez réessayer.");
+      console.error("Erreur lors de la récupération des marques:", err);
     } finally {
       setIsLoading(false);
     }
@@ -39,22 +37,27 @@ export default function BrandsManager() {
 
   const addBrand = async () => {
     try {
-      const response = await axios.post(API_URL, formData);
+      const response = await api.post("brands", formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        },
+      });
       setBrands([...brands, response.data]);
       setIsAddModalOpen(false);
       resetForm();
     } catch (err) {
-      setError("Failed to add brand. Please try again.");
-      console.error("Error adding brand:", err);
+      setError("Échec de l'ajout de la marque. Veuillez réessayer.");
+      console.error("Erreur lors de l'ajout de la marque:", err);
     }
   };
 
   const updateBrand = async () => {
     try {
-      const response = await axios.put(
-        `${API_URL}/${selectedBrand.id}`,
-        formData
-      );
+      const response = await api.put(`brands/${selectedBrand.id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        },
+      });
       setBrands(
         brands.map((brand) =>
           brand.id === selectedBrand.id ? response.data : brand
@@ -63,14 +66,18 @@ export default function BrandsManager() {
       setIsEditModalOpen(false);
       resetForm();
     } catch (err) {
-      setError("Failed to update brand. Please try again.");
-      console.error("Error updating brand:", err);
+      setError("Échec de la mise à jour de la marque. Veuillez réessayer.");
+      console.error("Erreur lors de la mise à jour de la marque:", err);
     }
   };
 
   const deleteBrand = async () => {
     try {
-      await axios.delete(`${API_URL}/${selectedBrand.id}`);
+      await api.delete(`brands/${selectedBrand.id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        },
+      });
       setBrands(brands.filter((brand) => brand.id !== selectedBrand.id));
       setIsDeleteModalOpen(false);
       setSelectedBrand(null);
@@ -103,41 +110,38 @@ export default function BrandsManager() {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Brands Management</h2>
+        <h2 className="text-xl font-semibold">Gestion des marques</h2>
         <button
           onClick={() => setIsAddModalOpen(true)}
           className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
         >
-          Add Brand
+          Ajouter une marque
         </button>
       </div>
-
-      {/* Error Message */}
+      {/* Message d'erreur */}
       {error && (
         <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
           <p>{error}</p>
         </div>
       )}
-
-      {/* Loading State */}
+      {/* État de chargement */}
       {isLoading ? (
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-6 rounded-lg ">
           <div className="flex justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
           </div>
         </div>
       ) : (
-        /* Brands Table */
+        /* Tableau des marques */
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr className="text-left border-b">
               <th className="px-4 py-4 text-left text-base font-medium">
-                Brand Name
+                Nom de la marque
               </th>
               <th className="px-4 py-4 text-left text-base font-medium">
-                Products
+                Produits
               </th>
               <th className="px-4 py-4 text-left text-base font-medium">
                 Actions
@@ -148,7 +152,8 @@ export default function BrandsManager() {
             {brands.length === 0 ? (
               <tr>
                 <td colSpan="3" className="py-4 text-center text-gray-500">
-                  No brands found. Add a new brand to get started.
+                  Aucune marque trouvée. Ajoutez une nouvelle marque pour
+                  commencer.
                 </td>
               </tr>
             ) : (
@@ -158,9 +163,9 @@ export default function BrandsManager() {
                     {brand.name}
                   </td>
                   <td className="px-4 py-4 text-left text-base">
-                    {brand.productsCount || 0}
+                    {brand.products_count || 0}
                   </td>
-                  <td className="px-4 py-3 flex gap-2">
+                  <td className="px-4 py-3 flex gap-6">
                     <button
                       onClick={() => openEditModal(brand)}
                       className="text-blue-500 hover:text-blue-700"
@@ -180,8 +185,7 @@ export default function BrandsManager() {
           </tbody>
         </table>
       )}
-
-      {/* Add Brand Modal */}
+      {/* Modal d'ajout de marque */}
       <Dialog
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
@@ -191,17 +195,19 @@ export default function BrandsManager() {
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-md bg-white rounded-lg p-6">
             <Dialog.Title className="text-lg font-semibold mb-4">
-              Add New Brand
+              Ajouter une nouvelle marque
             </Dialog.Title>
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Brand Name</label>
+              <label className="block text-gray-700 mb-2">
+                Nom de la marque
+              </label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 className="w-full p-2 border rounded-md"
-                placeholder="Enter brand name"
+                placeholder="Entrez le nom de la marque"
               />
             </div>
             <div className="flex justify-end gap-3 mt-6">
@@ -212,21 +218,20 @@ export default function BrandsManager() {
                 }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
               >
-                Cancel
+                Annuler
               </button>
               <button
                 onClick={addBrand}
                 disabled={!formData.name.trim()}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
               >
-                Add Brand
+                Ajouter
               </button>
             </div>
           </Dialog.Panel>
         </div>
       </Dialog>
-
-      {/* Edit Brand Modal */}
+      {/* Modal de modification de marque */}
       <Dialog
         open={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
@@ -236,10 +241,12 @@ export default function BrandsManager() {
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-md bg-white rounded-lg p-6">
             <Dialog.Title className="text-lg font-semibold mb-4">
-              Edit Brand
+              Modifier la marque
             </Dialog.Title>
             <div className="mb-4">
-              <label className="block text-gray-700 mb-2">Brand Name</label>
+              <label className="block text-gray-700 mb-2">
+                Nom de la marque
+              </label>
               <input
                 type="text"
                 name="name"
@@ -256,21 +263,20 @@ export default function BrandsManager() {
                 }}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
               >
-                Cancel
+                Annuler
               </button>
               <button
                 onClick={updateBrand}
                 disabled={!formData.name.trim()}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
               >
-                Update Brand
+                Mettre à jour
               </button>
             </div>
           </Dialog.Panel>
         </div>
       </Dialog>
-
-      {/* Delete Confirmation Modal */}
+      {/* Modal de confirmation de suppression */}
       <Dialog
         open={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -280,23 +286,23 @@ export default function BrandsManager() {
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-md bg-white rounded-lg p-6">
             <Dialog.Title className="text-lg font-semibold mb-4">
-              Confirm Delete
+              Confirmer la suppression
             </Dialog.Title>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete "{selectedBrand?.name}"?
+              Êtes-vous sûr de vouloir supprimer "{selectedBrand?.name}" ?
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
               >
-                Cancel
+                Annuler
               </button>
               <button
                 onClick={deleteBrand}
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
               >
-                Delete
+                Supprimer
               </button>
             </div>
           </Dialog.Panel>
