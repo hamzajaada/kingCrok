@@ -2,6 +2,7 @@ import { useState, useEffect, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import api from "../../Api/api";
+import Pagination from "../Pagination";
 
 export default function OrdersManager() {
   const [orders, setOrders] = useState([]);
@@ -10,6 +11,8 @@ export default function OrdersManager() {
   const [isLoading, setIsLoading] = useState(true);
   const [updatingOrderId, setUpdatingOrderId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(10);
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -24,27 +27,35 @@ export default function OrdersManager() {
     }
   };
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const response = await api.get("command", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-          },
-        });
+  const fetchOrders = async (page) => {
+    try {
+      const response = await api.get(`command?page=${page}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+        },
+      });
 
-        setOrders(response.data);
-        setError(null);
-      } catch (err) {
-        setError("Failed to load orders. Please try again later.");
-        console.error("Error fetching orders:", err);
-      } finally {
-        setIsLoading(false);
+      if (!response.data.data) {
+        throw new Error("No data received from server");
       }
-    };
 
-    fetchOrders();
-  }, []);
+      const orderData = response.data.data || response.data;
+      setOrders(Array.isArray(orderData) ? orderData : []);
+
+      setTotalPages(response.data.last_page);
+      setError(null);
+    } catch (err) {
+      setError("Failed to load orders. Please try again later.");
+      console.error("Error fetching orders:", err);
+      setOrders([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders(page);
+  }, [page]);
 
   const handleStatusChange = async (orderId, newStatus) => {
     setUpdatingOrderId(orderId);
@@ -193,6 +204,14 @@ export default function OrdersManager() {
               ))}
             </tbody>
           </table>
+
+          <div className="m-2 flex justify-end">
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </div>
         </div>
       )}
 

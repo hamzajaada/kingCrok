@@ -1,6 +1,13 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import Pagination from "../Pagination";
 
-export default function ProductsList({ products, isLoading, isError }) {
+export default function ProductsList({
+  products,
+  isLoading,
+  isError,
+}) {
+
   return (
     <>
       <div className="flex justify-between items-center mb-6">

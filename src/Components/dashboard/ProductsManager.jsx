@@ -4,6 +4,7 @@ import { PencilIcon, TrashIcon, PlusIcon } from "@heroicons/react/24/outline";
 import UpdateProduct from "./UpdateProduct";
 import api from "../../Api/api";
 import AddProduct from "./AddProduct";
+import Pagination from "../Pagination";
 
 export default function ProductsManager() {
   const [products, setProducts] = useState([]);
@@ -12,8 +13,9 @@ export default function ProductsManager() {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  // Fetch brand options
   const [brands, setBrands] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(10);
 
   const fetchBrands = async () => {
     try {
@@ -24,24 +26,17 @@ export default function ProductsManager() {
     }
   };
 
-  // Fetch brands && products on component mount
-  useEffect(() => {
-    fetchBrands();
-    fetchProducts();
-    // Cleanup function to reset state
-    return () => {
-      setProducts([]);
-      setSelectedProduct(null);
-      setIsLoading(false);
-      setError(null);
-    };
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async (page) => {
     setIsLoading(true);
     try {
-      const response = await api.get("products");
-      setProducts(response.data);
+      const response = await api.get(`products?page=${page}`);
+      // setProducts(response.data.data);
+      setProducts(
+        Array.isArray(response.data) ? response.data : response.data.data || []
+      );
+
+      setTotalPages(response.data.last_page);
+
       setError(null);
     } catch (err) {
       setError("Erreur lors du chargement des produits. Veuillez réessayer.");
@@ -49,7 +44,20 @@ export default function ProductsManager() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch brands && products on component mount
+  useEffect(() => {
+    fetchBrands();
+    fetchProducts(page);
+    // Cleanup function to reset state
+    return () => {
+      setProducts([]);
+      setSelectedProduct(null);
+      setIsLoading(false);
+      setError(null);
+    };
+  }, [page, fetchProducts]);
 
   const deleteProduct = async (id) => {
     try {
@@ -106,7 +114,7 @@ export default function ProductsManager() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-white overflow-hidden">
           {products?.length === 0 ? (
             <div className="py-8 text-center text-gray-500">
               <p>
@@ -172,6 +180,14 @@ export default function ProductsManager() {
               </tbody>
             </table>
           )}
+
+          <div className="m-2 flex justify-end">
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+            />
+          </div>
         </div>
       )}
 
