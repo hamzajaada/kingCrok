@@ -27,8 +27,9 @@ export default function Product() {
           api.get("products"),
         ]);
 
+         
         setCategories(categoriesResponse.data);
-        setProducts(productsResponse.data);
+        setProducts(productsResponse.data.data);
 
         if (brandFromURL) {
           setActiveCategory(brandFromURL);

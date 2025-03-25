@@ -23,7 +23,7 @@ const MultiProductSlider = () => {
         console.log("before");
         const response = await api.get("products");
         console.log(response);
-        const productsData = response.data.map(product => ({
+        const productsData = response.data.data.map(product => ({
           id: product.id,
           name: product.name,
           image: product.image_url, // Vous pouvez garder une image statique ou la remplacer par une image dynamique si disponible dans l'API
