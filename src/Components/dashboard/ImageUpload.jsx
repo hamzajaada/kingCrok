@@ -7,9 +7,78 @@ const ImageUpload = ({ onUpload, previewUrl, imageFile }) => {
   const [error, setError] = useState("");
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
-  // Only update when props change
+  const ALLOWED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp"];
+
+  const validateImage = (file) => {
+    if (!file) return "No file selected.";
+
+    // Check file extension
+    const fileName = file.name.toLowerCase();
+    const hasValidExtension = ALLOWED_EXTENSIONS.some((ext) =>
+      fileName.endsWith(ext)
+    );
+
+    // Check MIME type
+    const hasValidMimeType = ALLOWED_TYPES.includes(file.type);
+
+    if (!hasValidExtension || !hasValidMimeType) {
+      return "Only JPG, PNG, and WebP images are allowed.";
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      return "File size must be 5MB or less.";
+    }
+    return null;
+  };
+
+  const createPreview = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = (event) => {
+        setPreview(event.target.result);
+        resolve();
+      };
+
+      reader.onerror = (error) => {
+        reject(error);
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleFileChange = async (e) => {
+    setError("");
+    const selectedFile = e.target.files[0];
+
+    const validationError = validateImage(selectedFile);
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
+    try {
+      // Create preview
+      createPreview(selectedFile);
+
+      // Update state and notify parent
+      setFile(selectedFile);
+      onUpload(selectedFile);
+    } catch (err) {
+      setError("Error processing image. Please try again.");
+      console.error("Error handling file:", err);
+    }
+  };
+
+  const removeImage = () => {
+    setPreview(null);
+    setFile(null);
+    onUpload(null);
+  };
+
+  // Sync with parent component
   useEffect(() => {
     if (previewUrl !== undefined) {
       setPreview(previewUrl);
@@ -20,52 +89,6 @@ const ImageUpload = ({ onUpload, previewUrl, imageFile }) => {
     setFile(imageFile);
   }, [imageFile]);
 
-  const handleFileChange = (e) => {
-    setError("");
-    const selectedFile = e.target.files[0];
-
-    if (!selectedFile) {
-      setError("No file selected.");
-      return;
-    }
-
-    if (selectedFile) {
-      setFile(selectedFile);
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setPreview(event.target.result);
-      };
-      reader.readAsDataURL(selectedFile);
-      onUpload(selectedFile);
-    }
-
-    if (!ALLOWED_TYPES.includes(selectedFile.type)) {
-      setError("Only JPG, PNG, and WEBP images are allowed.");
-      return;
-    }
-
-    if (selectedFile.size > MAX_FILE_SIZE) {
-      setError("File size must be 5MB or less.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setPreview(event.target.result);
-    };
-    reader.readAsDataURL(selectedFile);
-
-    setFile(selectedFile);
-    onUpload(selectedFile);
-  };
-
-  const removeImage = () => {
-    setPreview(null);
-    setFile(null);
-    onUpload(null);
-  };
-
-  // Add this effect to ensure the parent component always has the current file
   useEffect(() => {
     if (file || imageFile) {
       onUpload(file || imageFile);
@@ -74,24 +97,22 @@ const ImageUpload = ({ onUpload, previewUrl, imageFile }) => {
 
   return (
     <div className="space-y-4 my-4">
-      {/* File Input */}
       {!preview && (
         <label className="block border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-gray-50 transition duration-200">
           <input
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
             className="hidden"
             onChange={handleFileChange}
           />
           <PhotoIcon className="mx-auto h-16 w-16 text-gray-400 mb-4" />
-          <p className="text-sm text-gray-600 ">
+          <p className="text-sm text-gray-600">
             Cliquez pour télécharger une image
           </p>
-          <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 5MB</p>
+          <p className="text-xs text-gray-500">PNG, JPG, WebP jusqu'à 5MB</p>
         </label>
       )}
 
-      {/* Image Preview */}
       {preview && (
         <div className="relative w-full h-80">
           <img
@@ -102,15 +123,19 @@ const ImageUpload = ({ onUpload, previewUrl, imageFile }) => {
           <button
             type="button"
             onClick={removeImage}
-            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"
+            className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
           >
             <XMarkIcon className="h-4 w-4" />
           </button>
         </div>
       )}
 
-      {/* Error Message */}
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+      {error && (
+        <p className="text-red-500 text-sm flex items-center gap-1">
+          <span className="inline-block w-2 h-2 rounded-full bg-red-500"></span>
+          {error}
+        </p>
+      )}
     </div>
   );
 };

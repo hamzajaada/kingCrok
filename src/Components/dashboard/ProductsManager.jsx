@@ -30,11 +30,7 @@ export default function ProductsManager() {
     setIsLoading(true);
     try {
       const response = await api.get(`products?page=${page}`);
-      // setProducts(response.data.data);
-      setProducts(
-        Array.isArray(response.data) ? response.data : response.data.data || []
-      );
-
+      setProducts(response.data.data || response.data);
       setTotalPages(response.data.last_page);
 
       setError(null);
