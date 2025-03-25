@@ -30,8 +30,13 @@ export default function Dashboard() {
             Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
           },
         });
+        // setOrders(response.data.data);
+        setOrders(
+          Array.isArray(response.data)
+            ? response.data
+            : response.data.data || []
+        );
 
-        setOrders(response.data);
         setError(null);
       } catch (err) {
         setError("Failed to load orders. Please try again later.");
@@ -58,7 +63,10 @@ export default function Dashboard() {
     setLoading(true);
     try {
       const response = await api.get("products");
-      setProducts(response.data);
+      // setProducts(response.data.data);
+      setProducts(
+        Array.isArray(response.data) ? response.data : response.data.data || []
+      );
       setError(null);
     } catch (err) {
       setError("Erreur lors du chargement des produits. Veuillez réessayer.");

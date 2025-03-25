@@ -29,8 +29,13 @@ export default function OrdersList() {
             Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
           },
         });
+        setOrders(response.data.data);
+        setOrders(
+          Array.isArray(response.data)
+            ? response.data
+            : response.data.data || []
+        );
 
-        setOrders(response.data);
         setError(null);
       } catch (err) {
         setError("Failed to load orders. Please try again later.");
