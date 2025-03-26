@@ -242,7 +242,13 @@ export default function DetailProduct() {
               {/* Description */}
               <div className={activeTab === "description" ? "block" : "hidden lg:block"}>
                 <h2 className="text-xl font-bold text-gracolor mb-2">Description :</h2>
-                <p className="text-gray-700 mb-4">{productData.description}</p>
+                <MDEditor.Markdown
+                        source={
+                          productData.description?.length >= 30
+                            ? productData.description.substring(0, 30) + "..."
+                            : productData.description
+                        }
+                      />
               </div>
               
               {/* Composition */}
