@@ -34,7 +34,6 @@ function App() {
             <Route path="/dashboard/products" element={<ProductsManager />} />
           </Route>
         </Route>
-
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/product" element={<Product />} />
@@ -45,7 +44,6 @@ function App() {
           path="/politique-confidentialite"
           element={<PolitiqueConfidentialite />}
         />
-
         {/* Route 404 - doit toujours être la dernière */}
         <Route path="*" element={<NotFoundPage />} />
         <Route path="/product" element={<Product />} />

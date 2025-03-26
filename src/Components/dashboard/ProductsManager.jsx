@@ -5,6 +5,7 @@ import UpdateProduct from "./UpdateProduct";
 import api from "../../Api/api";
 import AddProduct from "./AddProduct";
 import Pagination from "../Pagination";
+import MDEditor from "@uiw/react-md-editor";
 
 export default function ProductsManager() {
   const [products, setProducts] = useState([]);
@@ -141,10 +142,18 @@ export default function ProductsManager() {
                     <td className="px-4 py-4 text-sm text-gray-900">
                       {product.name}
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-900">
-                      {product.description?.length >= 30
+                    <td className="prose max-w-none px-4 py-4 text-sm text-gray-900">
+                      {/* {product.description?.length >= 30
                         ? product.description.substring(0, 30) + "..."
-                        : product.description}
+                        : product.description} */}
+                      <MDEditor.Markdown
+                        className="bg-white text-black"
+                        source={
+                          product.description?.length >= 30
+                            ? product.description.substring(0, 30) + "..."
+                            : product.description
+                        }
+                      />
                     </td>
                     <td className="px-4 py-4 text-sm text-gray-900">
                       {product.composition?.length >= 30
@@ -195,7 +204,7 @@ export default function ProductsManager() {
       >
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="w-full max-w-2xl bg-white rounded-lg p-6 max-h-[90vh] overflow-y-auto">
+          <Dialog.Panel className="w-full max-w-4xl bg-white rounded-lg p-6 max-h-[90vh] overflow-y-auto">
             <Dialog.Title className="text-lg font-semibold mb-4"></Dialog.Title>
             {selectedProduct && (
               <>
