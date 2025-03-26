@@ -2,13 +2,17 @@ import { useState, useEffect } from "react";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import ImageUpload from "./ImageUpload";
 import api from "../../Api/api";
+import MDEditor from "@uiw/react-md-editor";
+import ProductEditor from "./ProductEditor";
 
 export default function AddProduct({ product }) {
   const [brands, setBrands] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [markdown, setMarkdown] = useState("");
 
   const [form, setForm] = useState({
     name: "",
+    weight: "",
     description: "",
     composition: "",
     conseil: "",
@@ -30,6 +34,13 @@ export default function AddProduct({ product }) {
     };
     fetchBrands();
   }, []);
+
+  const handleDescriptionChange = (value) => {
+    setForm((prev) => ({
+      ...prev,
+      description: value,
+    }));
+  };
 
   const handleProductInfoChange = (index, key, value) => {
     const updatedProductInfo = [...form.product_info];
@@ -77,6 +88,7 @@ export default function AddProduct({ product }) {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
         },
+        body: JSON.stringify({ id: product.id, description: markdown }),
       });
 
       console.log("Product created:", response.data);
@@ -91,7 +103,7 @@ export default function AddProduct({ product }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-lg mx-auto p-6 border rounded-lg shadow-md"
+      className="max-full mx-auto p-4 border rounded-lg"
     >
       <h2 className="text-xl font-bold mb-4">Créer un produit</h2>
       <input
@@ -101,12 +113,28 @@ export default function AddProduct({ product }) {
         value={form.name}
         onChange={(e) => setForm({ ...form, name: e.target.value })}
       />
-      <textarea
+
+      <input
+        type="number"
+        placeholder="Poids (kg)"
+        className="border p-2 rounded w-full mb-2"
+        value={form.weight}
+        onChange={(e) => setForm({ ...form, weight: e.target.value })}
+      />
+      {/* <textarea
+        rows="10"
         placeholder="Description"
         className="border p-2 rounded w-full mb-2"
         value={form.description}
         onChange={(e) => setForm({ ...form, description: e.target.value })}
-      />
+      /> */}
+
+      <div className="space-y-2 my-4 rounded w-full mb-4">
+        <ProductEditor
+          initialValue={form.description}
+          onChange={handleDescriptionChange}
+        />
+      </div>
 
       {/* Brand Select */}
       <select
@@ -130,14 +158,15 @@ export default function AddProduct({ product }) {
         onChange={(e) => setForm({ ...form, conseil: e.target.value })}
       />
 
-      <input
-        type="text"
+      <textarea
+        rows="5"
         placeholder="Conditionnement"
         className="border p-2 rounded w-full mb-2"
         value={form.conditionnement}
         onChange={(e) => setForm({ ...form, conditionnement: e.target.value })}
       />
       <textarea
+        rows="5"
         placeholder="Composition"
         className="border p-2 rounded w-full mb-2"
         value={form.composition}

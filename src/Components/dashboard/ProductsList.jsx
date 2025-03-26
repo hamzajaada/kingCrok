@@ -2,12 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Pagination from "../Pagination";
 
-export default function ProductsList({
-  products,
-  isLoading,
-  isError,
-}) {
-
+export default function ProductsList({ products, isLoading, isError }) {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
@@ -16,7 +11,7 @@ export default function ProductsList({
 
       {/* Error Message */}
       {isError && (
-        <div className="py-8 text-center text-red-500">
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
           <p>{isError}</p>
         </div>
       )}

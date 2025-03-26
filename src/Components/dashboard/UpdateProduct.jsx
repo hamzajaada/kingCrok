@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { PlusIcon, TrashIcon } from "@heroicons/react/24/outline";
 import ImageUpload from "./ImageUpload";
 import api from "../../Api/api";
+import ProductEditor from "./ProductEditor";
 
 export default function UpdateProduct({ product }) {
   const [brands, setBrands] = useState([]);
@@ -35,6 +36,13 @@ export default function UpdateProduct({ product }) {
     fetchBrands();
   }, []);
 
+  const handleDescriptionChange = (value) => {
+    setForm((prev) => ({
+      ...prev,
+      description: value,
+    }));
+  };
+
   const handleProductInfoChange = (index, key, value) => {
     const updatedProductInfo = [...form.product_info];
     updatedProductInfo[index][key] = value;
@@ -52,103 +60,6 @@ export default function UpdateProduct({ product }) {
     const updatedProductInfo = form.product_info.filter((_, i) => i !== index);
     setForm({ ...form, product_info: updatedProductInfo });
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   // Validate form data FOR UPDATE
-  //   if (product) {
-  //     const requiredFields = [
-  //       "name",
-  //       "description",
-  //       "brand_id",
-  //       "product_info",
-  //     ];
-  //     for (const field of requiredFields) {
-  //       if (
-  //         !form[field] ||
-  //         (Array.isArray(form[field]) && form[field].length === 0) ||
-  //         form[field] === ""
-  //       ) {
-  //         console.error(`Missing required field: ${field}`);
-  //         return;
-  //       }
-  //     }
-
-  //     // Validate product_info contents
-  //     if (form.product_info.some((info) => !info.type || !info.value)) {
-  //       console.error("All product info fields must be filled");
-  //       return;
-  //     }
-
-  //     // Image validation: allow either existing image_url or new image file
-  //     if (!form.image && !product.image_url) {
-  //       console.error("Product must have an image");
-  //       return;
-  //     }
-  //   }
-
-  //   setIsSubmitting(true);
-  //   const formData = new FormData();
-
-  //   if (form.image) {
-  //     formData.append("image", form.image);
-  //   }
-
-  //   // Append fields to FormData
-  //   for (const key in form) {
-  //     if (key === "product_info") {
-  //       formData.append(key, JSON.stringify(form[key])); // Convert array to JSON string
-  //     }
-  //     // else if (key === "image" && form.image) {
-  //     //   formData.append("image", form.image);
-  //     // }
-  //     else {
-  //       formData.append(key, form[key]);
-  //     }
-  //   }
-
-  //   // If there's a new image file, append it
-  //   // If not, the existing image will remain unchanged on the server
-  //   if (form.image instanceof File) {
-  //     formData.append("image", form.image);
-  //   }
-
-  //   try {
-  //     const response = await api.post(
-  //       `products/update/${product.id}`,
-  //       formData,
-  //       {
-  //         headers: {
-  //           "Content-Type": "multipart/form-data",
-  //           Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
-  //         },
-  //       }
-  //     );
-
-  //     console.log("Product updated:", response.data);
-
-  //     // Optionally, redirect or show a success message
-  //     window.location.href = "/dashboard/products";
-  //   } catch (error) {
-  //     console.error("Error saving product:", error);
-  //   } finally {
-  //     setIsSubmitting(false);
-  //     // Emty all fields
-  //     if (!product) {
-  //       setForm({
-  //         name: "",
-  //         description: "",
-  //         composition: "",
-  //         conseil: "",
-  //         conditionnement: "",
-  //         image: null,
-  //         brand_id: "",
-  //         product_info: [],
-  //       });
-  //     }
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -195,11 +106,9 @@ export default function UpdateProduct({ product }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-lg mx-auto p-6 border rounded-lg shadow-md"
+      className="max-full mx-auto p-4 border rounded-lg"
     >
-      <h2 className="text-xl font-bold mb-4">
-        Modifier le produit
-      </h2>
+      <h2 className="text-xl font-bold mb-4">Modifier le produit</h2>
       <input
         type="text"
         placeholder="Nom du produit"
@@ -207,12 +116,19 @@ export default function UpdateProduct({ product }) {
         value={form.name}
         onChange={(e) => setForm({ ...form, name: e.target.value })}
       />
-      <textarea
+      {/* <textarea
         placeholder="Description"
         className="border p-2 rounded w-full mb-2"
         value={form.description}
         onChange={(e) => setForm({ ...form, description: e.target.value })}
-      />
+      /> */}
+
+      <div className="space-y-2 my-4">
+        <ProductEditor
+          initialValue={form.description}
+          onChange={handleDescriptionChange}
+        />
+      </div>
 
       {/* Sélection de la marque */}
       <select
@@ -236,14 +152,15 @@ export default function UpdateProduct({ product }) {
         onChange={(e) => setForm({ ...form, conseil: e.target.value })}
       />
 
-      <input
-        type="text"
+      <textarea
+        rows="7"
         placeholder="Conditionnement"
         className="border p-2 rounded w-full mb-2"
         value={form.conditionnement}
         onChange={(e) => setForm({ ...form, conditionnement: e.target.value })}
       />
       <textarea
+        rows="7"
         placeholder="Composition"
         className="border p-2 rounded w-full mb-2"
         value={form.composition}
