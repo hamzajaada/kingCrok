@@ -6,6 +6,7 @@ import Product from "../asset/images/product1.webp";
 import Footer from "../Components/layout/Footer";
 import { X, ChevronRight, Plus, Minus } from "lucide-react";
 import api from "../Api/api";
+import MDEditor from "@uiw/react-md-editor";
 
 export default function DetailProduct() {
   const { id } = useParams();
@@ -242,7 +243,12 @@ export default function DetailProduct() {
               {/* Description */}
               <div className={activeTab === "description" ? "block" : "hidden lg:block"}>
                 <h2 className="text-xl font-bold text-gracolor mb-2">Description :</h2>
-                <p className="text-gray-700 mb-4">{productData.description}</p>
+                <MDEditor.Markdown
+                        source={
+                          productData.description
+                        }
+                        className="bg-white text-black"
+                      />
               </div>
               
               {/* Composition */}

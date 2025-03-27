@@ -125,7 +125,7 @@ export default function Product() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredProducts.map((product) => (
-            <div key={product.id} className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div key={product.id} className=" rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
               <div className="relative aspect-square overflow-hidden">
               <img src={`${api.imageUrl}${product.image_url}`} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />                <div className="absolute top-2 right-2 bg-custcolor text-white text-xs px-2 py-1 rounded-full">
                   {product.brand?.name || "Standard"}
@@ -133,7 +133,7 @@ export default function Product() {
               </div>
               <div className="p-4">
                 <h3 className="text-custcolor font-bold text-xl mb-1 text-center">{product.name}</h3>
-                <p className="text-gray-600 text-sm mb-4 text-center">{product.description}</p>
+                <p className="text-gray-600 text-sm mb-4 text-center"> Sac de {product.weight} kg</p>
                 <div className="flex justify-center">
                   <Link to={`/detailProduct/${product.id}`} className="w-full bg-[#767264] text-white py-3 px-6 rounded-md hover:bg-[#5d5a50] transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#767264] text-sm font-semibold text-center">
                     VOIR DÉTAILS
