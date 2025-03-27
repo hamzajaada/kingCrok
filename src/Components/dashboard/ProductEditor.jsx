@@ -19,8 +19,19 @@ const ProductEditor = ({ initialValue, onChange }) => {
         value={markdown}
         onChange={handleChange}
         preview="edit"
-        height={300}
-        className="w-full bg-gray-100 text-gray-900"
+        height={350}
+        className="
+        w-full bg-gray-100 text-gray-900
+        dark:bg-gray-800 dark:text-white
+        prose max-w-none p-2 "
+        theme="dark"
+        toolbar={{
+          bold: true,
+          italic: true,
+          link: true,
+          image: true,
+          code: true,
+        }}
       />
     </div>
   );

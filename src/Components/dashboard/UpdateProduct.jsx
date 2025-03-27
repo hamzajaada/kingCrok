@@ -14,6 +14,7 @@ export default function UpdateProduct({ product }) {
 
   const [form, setForm] = useState({
     name: product?.name || "",
+    weight: product?.weight || "",
     description: product?.description || "",
     composition: product?.composition || "",
     conseil: product?.conseil || "",
@@ -115,6 +116,13 @@ export default function UpdateProduct({ product }) {
         className="border p-2 rounded w-full mb-2"
         value={form.name}
         onChange={(e) => setForm({ ...form, name: e.target.value })}
+      />
+      <input
+        type="number"
+        placeholder="Poids (kg)"
+        className="border p-2 rounded w-full mb-2"
+        value={form.weight}
+        onChange={(e) => setForm({ ...form, weight: e.target.value })}
       />
       {/* <textarea
         placeholder="Description"
